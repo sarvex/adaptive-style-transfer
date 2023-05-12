@@ -21,10 +21,7 @@ tf.set_random_seed(228)
 from model import Artgan
 
 def parse_list(str_value):
-    if ',' in str_value:
-        str_value = str_value.split(',')
-    else:
-        str_value = [str_value]
+    str_value = str_value.split(',') if ',' in str_value else [str_value]
     return str_value
 
 
@@ -147,13 +144,13 @@ def main(_):
 
         if args.phase == 'train':
             model.train(args, ckpt_nmbr=args.ckpt_nmbr)
-        if args.phase == 'inference' or args.phase == 'test':
+        if args.phase in ['inference', 'test']:
             print("Inference.")
             model.inference(args, args.inference_images_dir, resize_to_original=False,
                             to_save_dir=args.save_dir,
                             ckpt_nmbr=args.ckpt_nmbr)
 
-        if args.phase == 'inference_on_frames' or args.phase == 'test_on_frames':
+        if args.phase in ['inference_on_frames', 'test_on_frames']:
             print("Inference on frames sequence.")
             model.inference_video(args,
                                   path_to_folder=args.inference_images_dir[0],

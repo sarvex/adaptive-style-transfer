@@ -108,11 +108,16 @@ class PlacesDataset():
         for category_idx, category_name in enumerate(tqdm(self.categories_names)):
             print(category_name, category_idx)
             if os.path.exists(os.path.join(path_to_dataset, category_name)):
-                for file_name in tqdm(os.listdir(os.path.join(path_to_dataset, category_name))):
-                    self.dataset.append(os.path.join(path_to_dataset, category_name, file_name))
+                self.dataset.extend(
+                    os.path.join(path_to_dataset, category_name, file_name)
+                    for file_name in tqdm(
+                        os.listdir(os.path.join(path_to_dataset, category_name))
+                    )
+                )
             else:
-                print("Category %s can't be found in path %s. Skip it." %
-                      (category_name, os.path.join(path_to_dataset, category_name)))
+                print(
+                    f"Category {category_name} can't be found in path {os.path.join(path_to_dataset, category_name)}. Skip it."
+                )
 
         print("Finished. Constructed Places2 dataset of %d images." % len(self.dataset))
 

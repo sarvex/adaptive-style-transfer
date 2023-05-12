@@ -147,8 +147,8 @@ class Artgan(object):
                                                                  self.output_photo_discr_predictions.values())}
 
             self.discr_loss = tf.add_n(list(self.input_painting_discr_loss.values())) + \
-                              tf.add_n(list(self.input_photo_discr_loss.values())) + \
-                              tf.add_n(list(self.output_photo_discr_loss.values()))
+                                  tf.add_n(list(self.input_photo_discr_loss.values())) + \
+                                  tf.add_n(list(self.output_photo_discr_loss.values()))
 
             # Compute discriminator accuracies.
             self.input_painting_discr_acc = {key: tf.reduce_mean(tf.cast(x=(pred > tf.zeros_like(pred)),
@@ -164,8 +164,8 @@ class Artgan(object):
                                            for key, pred in zip(self.output_photo_discr_predictions.keys(),
                                                                 self.output_photo_discr_predictions.values())}
             self.discr_acc = (tf.add_n(list(self.input_painting_discr_acc.values())) + \
-                              tf.add_n(list(self.input_photo_discr_acc.values())) + \
-                              tf.add_n(list(self.output_photo_discr_acc.values()))) / float(len(scale_weight.keys())*3)
+                                  tf.add_n(list(self.input_photo_discr_acc.values())) + \
+                                  tf.add_n(list(self.output_photo_discr_acc.values()))) / float(len(scale_weight.keys())*3)
 
 
             # Generator.
@@ -216,22 +216,64 @@ class Artgan(object):
             # ============= Write statistics to tensorboard. ================ #
 
             # Discriminator loss summary.
-            s_d1 = [tf.summary.scalar("discriminator/input_painting_discr_loss/"+key, val)
-                    for key, val in zip(self.input_painting_discr_loss.keys(), self.input_painting_discr_loss.values())]
-            s_d2 = [tf.summary.scalar("discriminator/input_photo_discr_loss/"+key, val)
-                    for key, val in zip(self.input_photo_discr_loss.keys(), self.input_photo_discr_loss.values())]
-            s_d3 = [tf.summary.scalar("discriminator/output_photo_discr_loss/" + key, val)
-                    for key, val in zip(self.output_photo_discr_loss.keys(), self.output_photo_discr_loss.values())]
+            s_d1 = [
+                tf.summary.scalar(
+                    f"discriminator/input_painting_discr_loss/{key}", val
+                )
+                for key, val in zip(
+                    self.input_painting_discr_loss.keys(),
+                    self.input_painting_discr_loss.values(),
+                )
+            ]
+            s_d2 = [
+                tf.summary.scalar(
+                    f"discriminator/input_photo_discr_loss/{key}", val
+                )
+                for key, val in zip(
+                    self.input_photo_discr_loss.keys(),
+                    self.input_photo_discr_loss.values(),
+                )
+            ]
+            s_d3 = [
+                tf.summary.scalar(
+                    f"discriminator/output_photo_discr_loss/{key}", val
+                )
+                for key, val in zip(
+                    self.output_photo_discr_loss.keys(),
+                    self.output_photo_discr_loss.values(),
+                )
+            ]
             s_d = tf.summary.scalar("discriminator/discr_loss", self.discr_loss)
             self.summary_discriminator_loss = tf.summary.merge(s_d1+s_d2+s_d3+[s_d])
 
             # Discriminator acc summary.
-            s_d1_acc = [tf.summary.scalar("discriminator/input_painting_discr_acc/"+key, val)
-                    for key, val in zip(self.input_painting_discr_acc.keys(), self.input_painting_discr_acc.values())]
-            s_d2_acc = [tf.summary.scalar("discriminator/input_photo_discr_acc/"+key, val)
-                    for key, val in zip(self.input_photo_discr_acc.keys(), self.input_photo_discr_acc.values())]
-            s_d3_acc = [tf.summary.scalar("discriminator/output_photo_discr_acc/" + key, val)
-                    for key, val in zip(self.output_photo_discr_acc.keys(), self.output_photo_discr_acc.values())]
+            s_d1_acc = [
+                tf.summary.scalar(
+                    f"discriminator/input_painting_discr_acc/{key}", val
+                )
+                for key, val in zip(
+                    self.input_painting_discr_acc.keys(),
+                    self.input_painting_discr_acc.values(),
+                )
+            ]
+            s_d2_acc = [
+                tf.summary.scalar(
+                    f"discriminator/input_photo_discr_acc/{key}", val
+                )
+                for key, val in zip(
+                    self.input_photo_discr_acc.keys(),
+                    self.input_photo_discr_acc.values(),
+                )
+            ]
+            s_d3_acc = [
+                tf.summary.scalar(
+                    f"discriminator/output_photo_discr_acc/{key}", val
+                )
+                for key, val in zip(
+                    self.output_photo_discr_acc.keys(),
+                    self.output_photo_discr_acc.values(),
+                )
+            ]
             s_d_acc = tf.summary.scalar("discriminator/discr_acc", self.discr_acc)
             s_d_acc_g = tf.summary.scalar("discriminator/discr_acc", self.gener_acc)
             self.summary_discriminator_acc = tf.summary.merge(s_d1_acc+s_d2_acc+s_d3_acc+[s_d_acc])
@@ -302,11 +344,10 @@ class Artgan(object):
 
         if self.load(self.checkpoint_dir, ckpt_nmbr):
             print(" [*] Load SUCCESS")
+        elif self.load(self.checkpoint_long_dir, ckpt_nmbr):
+            print(" [*] Load SUCCESS")
         else:
-            if self.load(self.checkpoint_long_dir, ckpt_nmbr):
-                print(" [*] Load SUCCESS")
-            else:
-                print(" [!] Load failed...")
+            print(" [!] Load failed...")
 
         # Initial discriminator success rate.
         win_rate = args.discr_success_rate
@@ -395,11 +436,10 @@ class Artgan(object):
 
         if self.load(self.checkpoint_dir, ckpt_nmbr):
             print(" [*] Load SUCCESS")
+        elif self.load(self.checkpoint_long_dir, ckpt_nmbr):
+            print(" [*] Load SUCCESS")
         else:
-            if self.load(self.checkpoint_long_dir, ckpt_nmbr):
-                print(" [*] Load SUCCESS")
-            else:
-                print(" [!] Load failed...")
+            print(" [!] Load failed...")
 
         # Create folder to store results.
         if to_save_dir is None:
@@ -441,19 +481,15 @@ class Artgan(object):
                 self.input_photo: normalize_arr_of_imgs(img),
                 self.lr: self.options.lr
             }
-            if use_time_smooth_randomness:
-                pass
-
             img = self.sess.run(self.output_photo, feed_dict=feed_dict)
 
             img = img[0]
             img = denormalize_arr_of_imgs(img)
             if resize_to_original:
                 img = scipy.misc.imresize(img, size=img_shape)
-            else:
-                pass
-
-            scipy.misc.imsave(os.path.join(to_save_dir, img_name[:-4] + "_stylized.jpg"), img)
+            scipy.misc.imsave(
+                os.path.join(to_save_dir, f"{img_name[:-4]}_stylized.jpg"), img
+            )
 
         print("Inference is finished.")
 
@@ -466,11 +502,10 @@ class Artgan(object):
 
         if self.load(self.checkpoint_dir, ckpt_nmbr):
             print(" [*] Load SUCCESS")
+        elif self.load(self.checkpoint_long_dir, ckpt_nmbr):
+            print(" [*] Load SUCCESS")
         else:
-            if self.load(self.checkpoint_long_dir, ckpt_nmbr):
-                print(" [*] Load SUCCESS")
-            else:
-                print(" [!] Load failed...")
+            print(" [!] Load failed...")
 
         # Create folder to store results.
         if to_save_dir is None:
@@ -504,10 +539,10 @@ class Artgan(object):
             img = denormalize_arr_of_imgs(img)
             if resize_to_original:
                 img = scipy.misc.imresize(img, size=img_shape)
-            else:
-                pass
             img_name = os.path.basename(img_path)
-            scipy.misc.imsave(os.path.join(to_save_dir, img_name[:-4] + "_stylized.jpg"), img)
+            scipy.misc.imsave(
+                os.path.join(to_save_dir, f"{img_name[:-4]}_stylized.jpg"), img
+            )
 
         print("Inference is finished.")
 
@@ -525,24 +560,27 @@ class Artgan(object):
 
     def load(self, checkpoint_dir, ckpt_nmbr=None):
         if ckpt_nmbr:
-            if len([x for x in os.listdir(checkpoint_dir) if ("ckpt-" + str(ckpt_nmbr)) in x]) > 0:
-                print(" [*] Reading checkpoint %d from folder %s." % (ckpt_nmbr, checkpoint_dir))
-                ckpt_name = [x for x in os.listdir(checkpoint_dir) if ("ckpt-" + str(ckpt_nmbr)) in x][0]
-                ckpt_name = '.'.join(ckpt_name.split('.')[:-1])
-                self.initial_step = ckpt_nmbr
-                print("Load checkpoint %s. Initial step: %s." % (ckpt_name, self.initial_step))
-                self.saver.restore(self.sess, os.path.join(checkpoint_dir, ckpt_name))
-                return True
-            else:
+            if not [
+                x
+                for x in os.listdir(checkpoint_dir)
+                if f"ckpt-{str(ckpt_nmbr)}" in x
+            ]:
                 return False
+            print(" [*] Reading checkpoint %d from folder %s." % (ckpt_nmbr, checkpoint_dir))
+            ckpt_name = [
+                x
+                for x in os.listdir(checkpoint_dir)
+                if f"ckpt-{str(ckpt_nmbr)}" in x
+            ][0]
+            ckpt_name = '.'.join(ckpt_name.split('.')[:-1])
+            self.initial_step = ckpt_nmbr
         else:
-            print(" [*] Reading latest checkpoint from folder %s." % (checkpoint_dir))
+            print(f" [*] Reading latest checkpoint from folder {checkpoint_dir}.")
             ckpt = tf.train.get_checkpoint_state(checkpoint_dir)
-            if ckpt and ckpt.model_checkpoint_path:
-                ckpt_name = os.path.basename(ckpt.model_checkpoint_path)
-                self.initial_step = int(ckpt_name.split("_")[-1].split(".")[0])
-                print("Load checkpoint %s. Initial step: %s." % (ckpt_name, self.initial_step))
-                self.saver.restore(self.sess, os.path.join(checkpoint_dir, ckpt_name))
-                return True
-            else:
+            if not ckpt or not ckpt.model_checkpoint_path:
                 return False
+            ckpt_name = os.path.basename(ckpt.model_checkpoint_path)
+            self.initial_step = int(ckpt_name.split("_")[-1].split(".")[0])
+        print(f"Load checkpoint {ckpt_name}. Initial step: {self.initial_step}.")
+        self.saver.restore(self.sess, os.path.join(checkpoint_dir, ckpt_name))
+        return True

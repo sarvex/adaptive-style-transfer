@@ -39,17 +39,15 @@ def parse_one_or_list(str_value):
 
 
 def parse_list(str_value):
-    if ',' in str_value:
-        str_value = str_value.split(',')
-    else:
-        str_value = [str_value]
+    str_value = str_value.split(',') if ',' in str_value else [str_value]
     return str_value
 
 
 def parse_none(str_value):
-    if str_value is not None:
-        if str_value.lower() == 'none' or str_value == "":
-            str_value = None
+    if str_value is not None and (
+        str_value.lower() == 'none' or str_value == ""
+    ):
+        str_value = None
     return str_value
 
 
@@ -73,11 +71,15 @@ def parse_args(argv):
 
 def create_slim_extractor(cli_params):
     extractor_class = SlimFeatureExtractor
-    extractor_ = extractor_class(cli_params['net'], cli_params['snapshot_path'],
-                                 should_restore_classifier=True,
-                                 gpu_memory_fraction=0.95,
-                                 vgg_16_heads=None if cli_params['net'] != 'vgg_16_multihead' else {'artist_id': cli_params['num_classes']})
-    return extractor_
+    return extractor_class(
+        cli_params['net'],
+        cli_params['snapshot_path'],
+        should_restore_classifier=True,
+        gpu_memory_fraction=0.95,
+        vgg_16_heads=None
+        if cli_params['net'] != 'vgg_16_multihead'
+        else {'artist_id': cli_params['num_classes']},
+    )
 
 
 classification_layer = {
@@ -142,7 +144,15 @@ def get_images_df(dataset, method, artist_slug):
     assert len(paths) or method.startswith('real')
 
     if not method.startswith('real'):
-        cur_style_paths = [x for x in paths if re.match('.*_stylized_({}|{}).(jpg|png)'.format(artist_slug, style_2_image_name[artist_slug]), os.path.basename(x)) is not None]
+        cur_style_paths = [
+            x
+            for x in paths
+            if re.match(
+                f'.*_stylized_({artist_slug}|{style_2_image_name[artist_slug]}).(jpg|png)',
+                os.path.basename(x),
+            )
+            is not None
+        ]
     elif method == 'real_wiki_test':
         # use only images from the test set
         split_df = pd.read_hdf(os.path.expanduser('evaluation_data/split.hdf5'))
@@ -160,8 +170,7 @@ def get_images_df(dataset, method, artist_slug):
 
 
 def sprint_stats(stats):
-    msg = ''
-    msg += 'artist\t accuracy\t is_correct\t total\n'
+    msg = '' + 'artist\t accuracy\t is_correct\t total\n'
     for key in sorted(stats.keys()):
         msg += key + '\t {:.5f}\t {}\t \t{}\n'.format(*stats[key])
     return msg

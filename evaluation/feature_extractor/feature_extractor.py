@@ -60,7 +60,9 @@ class SlimFeatureExtractor(object):
         accepable_methods = [None, 'signed_sqrt', 'unit_norm']
         for method in feature_norm_method:
             if method not in accepable_methods:
-                raise ValueError('unknown norm method: {}. Use one of {}'.format(method, accepable_methods))
+                raise ValueError(
+                    f'unknown norm method: {method}. Use one of {accepable_methods}'
+                )
         self.feature_norm_method = feature_norm_method
         if vgg_16_heads is not None:
             should_restore_classifier = True
@@ -103,19 +105,19 @@ class SlimFeatureExtractor(object):
                                     'Branch_1/Conv2d_0a_1x1', 'Branch_1/Conv2d_0b_3x3',
                                     'Branch_2/Conv2d_0a_1x1', 'Branch_2/Conv2d_0b_3x3',
                                     'Branch_3/MaxPool_0a_3x3', 'Branch_3/Conv2d_0b_1x1']:
-                    full_tensor_name = 'InceptionV1/InceptionV1/Mixed_4d/' + tensor_name
-                    if 'MaxPool' in tensor_name:
-                        full_tensor_name += '/MaxPool:0'
-                    else:
-                        full_tensor_name += '/Relu:0'
-                    short_name = 'Mixed_4d/' + tensor_name
+                    full_tensor_name = f'InceptionV1/InceptionV1/Mixed_4d/{tensor_name}'
+                    full_tensor_name += '/MaxPool:0' if 'MaxPool' in tensor_name else '/Relu:0'
+                    short_name = f'Mixed_4d/{tensor_name}'
                     self.__dict__[short_name] = tf.get_default_graph().get_tensor_by_name(full_tensor_name)
                 self.MaxPool_0a_7x7 = tf.get_default_graph().get_tensor_by_name("InceptionV1/Logits/MaxPool_0a_7x7/AvgPool:0")
             elif net_name in ['vgg_16', 'vgg_16_multihead']:
                 for layer_name in ['fc6', 'fc7'] + \
-                        ['conv{0}/conv{0}_{1}'.format(i, j) for i in xrange(3, 6) for j in xrange(1, 4)]:
-                    self.__dict__['vgg_16/{}_prerelu'.format(layer_name)] = \
-                        tf.get_default_graph().get_tensor_by_name("vgg_16/{}/BiasAdd:0".format(layer_name))
+                            ['conv{0}/conv{0}_{1}'.format(i, j) for i in xrange(3, 6) for j in xrange(1, 4)]:
+                    self.__dict__[
+                        f'vgg_16/{layer_name}_prerelu'
+                    ] = tf.get_default_graph().get_tensor_by_name(
+                        f"vgg_16/{layer_name}/BiasAdd:0"
+                    )
             config = tf.ConfigProto(gpu_options=
                                     tf.GPUOptions(per_process_gpu_memory_fraction=gpu_memory_fraction))
             self.sess = tf.Session(config=config)
@@ -141,7 +143,7 @@ class SlimFeatureExtractor(object):
         if len(self.feature_norm_method) > 1:
             raise NotImplementedError()
         if spatial_pool not in [None, 'max', 'sum']:
-            raise ValueError('Unknown spatial pool: {}'.format(spatial_pool))
+            raise ValueError(f'Unknown spatial pool: {spatial_pool}')
         if spatial_pool is not None:
             should_reshape_vectors = False
         if not isinstance(layer_names, list):
@@ -165,8 +167,9 @@ class SlimFeatureExtractor(object):
         # feed to the net_stream augmented images anf pool features after
         features = np.hstack(feature_dict.values())
         if spatial_pool is not None and len(features.shape) != 4:
-            raise ValueError('Cannot do a spatial pool on features with shape: {}'.format(
-                features.shape))
+            raise ValueError(
+                f'Cannot do a spatial pool on features with shape: {features.shape}'
+            )
         if spatial_pool == 'max':
             features = np.max(features, axis=(1, 2))
         elif spatial_pool == 'sum':

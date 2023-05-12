@@ -28,12 +28,13 @@ from utils import *
 
 
 def batch_norm(input, is_training=True, name="batch_norm"):
-    x = tflayers.batch_norm(inputs=input,
-                            scale=True,
-                            is_training=is_training,
-                            trainable=True,
-                            reuse=None)
-    return x
+    return tflayers.batch_norm(
+        inputs=input,
+        scale=True,
+        is_training=is_training,
+        trainable=True,
+        reuse=None,
+    )
 
 
 def instance_norm(input, name="instance_norm", is_training=True):

@@ -40,11 +40,11 @@ class MockNet(object):
 def load_net_with_graph(snapshot_path, gpu_memory_fraction=None,
                         **kwargs):
 
-    graph_path = snapshot_path + '.meta'
+    graph_path = f'{snapshot_path}.meta'
     if not os.path.exists(graph_path):
-        raise IOError('Graph meta file not found: {}'.format(graph_path))
+        raise IOError(f'Graph meta file not found: {graph_path}')
     if not os.path.exists(snapshot_path):
-        raise IOError('Snapshot file not found: {}'.format(snapshot_path))
+        raise IOError(f'Snapshot file not found: {snapshot_path}')
 
     config = tf.ConfigProto(log_device_placement=False,
                             allow_soft_placement=True)

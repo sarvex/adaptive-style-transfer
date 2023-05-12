@@ -51,10 +51,20 @@ def encoder(image, options, reuse=True, name="encoder"):
         c4 = tf.nn.relu(instance_norm(conv2d(c3, options.gf_dim * 4, 3, 2, padding='VALID', name='g_e4_c'),
                                       is_training=options.is_training,
                                       name='g_e4_bn'))
-        c5 = tf.nn.relu(instance_norm(conv2d(c4, options.gf_dim * 8, 3, 2, padding='VALID', name='g_e5_c'),
-                                      is_training=options.is_training,
-                                      name='g_e5_bn'))
-        return c5
+        return tf.nn.relu(
+            instance_norm(
+                conv2d(
+                    c4,
+                    options.gf_dim * 8,
+                    3,
+                    2,
+                    padding='VALID',
+                    name='g_e5_c',
+                ),
+                is_training=options.is_training,
+                name='g_e5_bn',
+            )
+        )
 
 
 def decoder(features, options, reuse=True, name="decoder"):
@@ -77,9 +87,15 @@ def decoder(features, options, reuse=True, name="decoder"):
         def residule_block(x, dim, ks=3, s=1, name='res'):
             p = int((ks - 1) / 2)
             y = tf.pad(x, [[0, 0], [p, p], [p, p], [0, 0]], "REFLECT")
-            y = instance_norm(conv2d(y, dim, ks, s, padding='VALID', name=name+'_c1'), name+'_bn1')
+            y = instance_norm(
+                conv2d(y, dim, ks, s, padding='VALID', name=f'{name}_c1'),
+                f'{name}_bn1',
+            )
             y = tf.pad(tf.nn.relu(y), [[0, 0], [p, p], [p, p], [0, 0]], "REFLECT")
-            y = instance_norm(conv2d(y, dim, ks, s, padding='VALID', name=name+'_c2'), name+'_bn2')
+            y = instance_norm(
+                conv2d(y, dim, ks, s, padding='VALID', name=f'{name}_c2'),
+                f'{name}_bn2',
+            )
             return y + x
 
         # Now stack 9 residual blocks
